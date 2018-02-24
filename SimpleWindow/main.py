@@ -1,4 +1,5 @@
-import Tkinter
+import tkinter as tk
 
-root = Tkinter.Tk()
+root = tk.Tk()
+root.geometry('400x300')
 root.mainloop()
