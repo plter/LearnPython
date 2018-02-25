@@ -1,5 +1,6 @@
 import json
-from sklearn import tree
+
+from sklearn import neighbors
 
 f = open("target_arr.json", 'r')
 target_arr = json.load(f)
@@ -12,7 +13,7 @@ f.close()
 # print(target_arr)
 # print(data_arr)
 
-clf = tree.DecisionTreeClassifier()
+clf = neighbors.KNeighborsClassifier()
 clf.fit(data_arr, target_arr)
 
 
