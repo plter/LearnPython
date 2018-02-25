@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hand write recognize</title>
+</head>
+<body style="margin: 0;">
+<div>
+    <canvas style="border-style: dashed;"></canvas>
+</div>
+<div>
+    <button id="btn-clear">Clear</button>
+    <button id="btn-recognize">Recognize</button>
+</div>
+<div>
+    Preview photo:
+    <canvas id="preview"></canvas>
+</div>
+<div id="result"></div>
+<script>
+    class Main {
+        constructor() {
+            this.btnClear = document.querySelector("#btn-clear");
+            this.btnRecognize = document.querySelector("#btn-recognize");
+
+            this.preview = document.querySelector("#preview");
+            this.preview.width = 20;
+            this.preview.height = 20;
+            this.previewContext2d = this.preview.getContext("2d");
+
+            this.result = document.querySelector("#result");
+
+            this.canvas = document.querySelector("canvas");
+            this.canvas.width = 200;
+            this.canvas.height = 200;
+            this.context2d = this.canvas.getContext("2d");
+
+            this.addListeners();
+        }
+
+        btnClear_clickedHandler() {
+            this.context2d.save();
+            this.context2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context2d.restore();
+        }
+
+        /**
+         * @param photoData {Array}
+         * @return {Promise<String>}
+         */
+        recognize(photoData) {
+            return new Promise(resolve => {
+                let url = `/hw/${JSON.stringify(photoData)}`;
+                let xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    resolve(xhr.responseText);
+                };
+                xhr.open("GET", url);
+                xhr.send();
+            });
+        }
+
+        async btnRecognize_clickedHandler() {
+            this.previewContext2d.clearRect(0, 0, 20, 20);
+            this.previewContext2d.fillStyle = "#ffffff";
+            this.previewContext2d.fillRect(0, 0, 20, 20);
+            this.previewContext2d.drawImage(this.canvas, 0, 0, 20, 20);
+
+            let id = this.previewContext2d.getImageData(0, 0, 20, 20);
+            let photoData = [];
+            for (let i = 0; i < id.data.length; i += 4) {
+                let colorValue = Math.round((id.data[i] + id.data[i + 1] + id.data[i + 2]) / 3);
+                photoData.push(colorValue);
+            }
+            let result = await this.recognize(photoData);
+            this.result.innerHTML = `Result:${result}`;
+        }
+
+        /**
+         * @param e {MouseEvent}
+         */
+        canvas_mouseMoveHandler(e) {
+            this.context2d.lineTo(e.x, e.y);
+            this.context2d.stroke();
+        }
+
+        canvas_mouseUpHandler() {
+            this.canvas.onmouseup = null;
+            this.canvas.onmousemove = null;
+        }
+
+        /**
+         *
+         * @param e {MouseEvent}
+         */
+        canvas_mouseDownHandler(e) {
+            this.canvas.onmousemove = this.canvas_mouseMoveHandler.bind(this);
+            this.canvas.onmouseup = this.canvas_mouseUpHandler.bind(this);
+
+            this.context2d.lineWidth = 20;
+            this.context2d.beginPath();
+            this.context2d.moveTo(e.x, e.y);
+        }
+
+        addListeners() {
+            this.btnClear.onclick = this.btnClear_clickedHandler.bind(this);
+            this.btnRecognize.onclick = this.btnRecognize_clickedHandler.bind(this);
+
+            this.canvas.onmousedown = this.canvas_mouseDownHandler.bind(this);
+        }
+    }
+
+    new Main();
+</script>
+</body>
+</html>
