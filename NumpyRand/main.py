@@ -10,11 +10,11 @@ print(a)
 # print(np.random.rand(1000))
 
 
-num_count = 2000
+num_count = 10000
 x = np.random.randn(num_count)
 # y = np.full(num_count, 0, dtype=np.float32)
 y = np.random.rand(num_count) * 5
-print(y)
+# print(y)
 
 plt.plot(x, y, '.')
 plt.show()
