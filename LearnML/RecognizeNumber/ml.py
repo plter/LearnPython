@@ -1,6 +1,7 @@
 import json
 
 from sklearn import neighbors
+from sklearn import neural_network
 
 f = open("target_arr.json", 'r')
 target_arr = json.load(f)
@@ -13,7 +14,7 @@ f.close()
 # print(target_arr)
 # print(data_arr)
 
-clf = neighbors.KNeighborsClassifier()
+clf = neighbors.KNeighborsClassifier(n_neighbors=3)
 clf.fit(data_arr, target_arr)
 
 
